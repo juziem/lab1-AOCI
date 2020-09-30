@@ -47,7 +47,8 @@ namespace lab1
                 string fileName = openFileDialog.FileName;
                 sourceImage = new Image<Bgr, byte>(fileName);
             }
-            imageBox1.Image = sourceImage.Resize(320, 240, Inter.Linear);
+            if(sourceImage != null)
+            imageBox1.Image = sourceImage.Resize(1280, 960, Inter.Linear);
         }
 
 
@@ -57,7 +58,7 @@ namespace lab1
             double cannyThresholdLinking = TL;
 
             cannyEdges = sourceImage.Canny(cannyThreshold, cannyThresholdLinking);
-            imageBox2.Image = cannyEdges.Resize(240, 180, Inter.Linear);
+            imageBox2.Image = cannyEdges.Resize(640, 480, Inter.Linear);
         }
 
         private void canniEdg(Image<Bgr, byte> sourceImage)
@@ -84,7 +85,7 @@ namespace lab1
                         resultImage.Data[y, x, channel] = color; // изменение цвета пикселя
                     }
 
-            imageBox3.Image = resultImage.Resize(240, 180, Inter.Linear); 
+            imageBox3.Image = resultImage.Resize(640, 480, Inter.Linear); 
         }
 
         private void textBox3_TextChanged(object sender, EventArgs e)
@@ -97,35 +98,34 @@ namespace lab1
             {
                 T = 1;
             }
-
-            if (T > 100 || T < 0)
+            
+            if (T >= 0 && T <= 100) 
+                tbChanged(T);
+            else
             {
                 MessageBox.Show("Выход за допустимые значения. Диапазон 0-100");
-                textBox3.Text = "";
-                T = 1;
+                textBox3.Clear();
             }
-            canniEf(sourceImage);
-            canniEdg(sourceImage);
         }
 
         private void textBox4_TextChanged(object sender, EventArgs e)
         {
             if (textBox4.Text != String.Empty)
             {
-                TL = double.Parse(textBox4.Text);
+                T = double.Parse(textBox4.Text);
             }
             else
             {
-                TL = 1;
+                T = 1;
             }
-            if (TL > 100 || TL < 0)
+
+            if (T >= 0 && T <= 100)
+                tbChanged(T);
+            else
             {
                 MessageBox.Show("Выход за допустимые значения. Диапазон 0-100");
-                textBox3.Text = "";
-                TL = 1;
+                textBox4.Clear();
             }
-            canniEf(sourceImage);
-            canniEdg(sourceImage);
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -158,6 +158,8 @@ namespace lab1
             sourceImage = frame.ToImage<Bgr, byte>();
             canniEf(sourceImage);
             canniEdg(sourceImage);
+
+            frameCount = 0;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -178,6 +180,34 @@ namespace lab1
 
             //imageBox3.Image = image;
         }
-
+        private void tbChanged(double tb)
+        {
+            T = tb;
+            if (sourceImage != null)
+            {
+                if (T > 100 || T < 0)
+                {
+                    T = 1;
+                }
+                canniEf(sourceImage);
+                canniEdg(sourceImage);
+            }
+            else
+            {
+                textBox3.Clear();
+                textBox4.Clear();
+                MessageBox.Show("Загрузите изображение");
+            }
+        }
+        private void textBox3_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar != 8 && (e.KeyChar < 48 || e.KeyChar > 57))
+                e.Handled = true;
+        }
+        private void textBox4_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar != 8 && (e.KeyChar < 48 || e.KeyChar > 57))
+                e.Handled = true;
+        }
     }
 }
